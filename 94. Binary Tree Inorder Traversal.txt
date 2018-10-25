@@ -1,0 +1,65 @@
+94. Binary Tree Inorder Traversal
+
+Given a binary tree, return the inorder traversal of its nodes' values.
+
+Example:
+
+Input: [1,null,2,3]
+   1
+    \
+     2
+    /
+   3
+
+Output: [1,3,2]
+Follow up: Recursive solution is trivial, could you do it iteratively?
+
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+    struct TraverNode {
+        TreeNode *node;
+        int color;
+        
+        TraverNode(TreeNode *o, int c): node(o), color(c) {};
+    };
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        list<TraverNode*> lst;
+        vector<int> res;
+        if (!root)
+            return res;
+        
+        TraverNode *no = new TraverNode(root, 0);
+        lst.push_front(no);
+        do {
+            no = lst.front();
+            TreeNode* item = no->node;
+            if (item->left != NULL && no->color == 0) {
+                no->color = 1;
+                lst.push_front(new TraverNode(item->left, 0));
+            } else {
+                res.push_back(item->val);
+                lst.pop_front();
+
+                if (item->right != NULL && no->color < 2) {
+                    no->color = 2;
+                    lst.push_front(new TraverNode(item->right, 0));
+                }
+
+                delete no;
+                no = NULL;
+            }
+        } while(lst.size() > 0);
+        return res;
+    }
+};

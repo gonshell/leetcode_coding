@@ -1,0 +1,72 @@
+29. Divide Two Integers
+
+Given two integers dividend and divisor, divide two integers without using multiplication, division and mod operator.
+
+Return the quotient after dividing dividend by divisor.
+
+The integer division should truncate toward zero.
+
+Example 1:
+
+Input: dividend = 10, divisor = 3
+Output: 3
+Example 2:
+
+Input: dividend = 7, divisor = -3
+Output: -2
+Note:
+
+Both dividend and divisor will be 32-bit signed integers.
+The divisor will never be 0.
+Assume we are dealing with an environment which could only store integers within the 32-bit signed integer range: [−231,  231 − 1]. For the purpose of this problem, assume that your function returns 231 − 1 when the division result overflows.
+
+class Solution {
+public:
+    int divide(int dividend, int divisor) {
+        if (divisor == 0)
+            return 0;
+        
+        int p0 = dividend;
+        int p1 = divisor;
+        int dd = 0;
+        
+        bool sign = false;
+        if (dividend > 0) {
+            sign = !sign;
+            p0 = -p0;
+        }
+        
+        if (divisor > 0) {
+            sign = !sign;
+            p1 = -p1;
+        }
+        
+        if (p1 == -1) {
+            dd = -p0; 
+        }
+        else {
+            while (p0 <= p1) {
+                p0 -= p1;
+
+                dd ++;
+            }
+        }        
+        
+        if (sign) {
+            dd = -dd;
+        }
+        else {
+            if (dd <= -2147483648)
+                dd = 2147483647;
+        }
+
+        return dd;
+    }
+};
+
+
+问题反馈：
+问题1：正负范围不一致，可以把正数映射到负空间，并记录其符号正负。
+问题2：结果得数越界后，所得的正负结果需要矫正。
+
+上面两点问题，一个是integer越界后的表示；一个是正负结果映射方向。

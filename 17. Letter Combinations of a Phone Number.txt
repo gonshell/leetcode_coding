@@ -1,0 +1,57 @@
+
+Letter Combinations of a Phone Number
+
+Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent.
+
+A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+
+
+Example:
+
+Input: "23"
+Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+Note:
+
+Although the above answer is in lexicographical order, your answer could be in any order you want.
+
+
+class Solution {
+public:
+    vector<string> letterCombinations(string digits) {
+        vector<vector<char>> vChars = {{'a','b','c'},{'d','e','f'},{'g','h','i'},{'j','k','l'},
+                                       {'m','n','o'},{'p','q','r','s'},{'t','u','v'},{'w','x','y','z'}};
+        vector<string> res;
+        vector<string> last;
+        
+        if (digits.length() <= 0)
+            return res;
+        
+        for (int i = 0; i < digits.length(); i ++) {
+            char c = digits[i];
+            int n = c - '1' - 1;
+            vector<char> v0 = vChars[n];
+            
+            last = res;
+            res.clear();
+            for (int j=0; j < v0.size(); j ++) {
+                char c0 = v0[j];
+                int k = 0;
+                do {
+                    string s0 = "";
+                    if (last.size() > 0)
+                        s0 += last[k];
+                    s0 += c0;
+                    res.push_back(s0);
+                    k++;
+                } while (k<last.size());
+            } 
+        }
+        
+        return res;
+    }
+};
+
+问题1:开始考虑使用递归来做计算，后来发现不需要使用递归。
+问题2:开始还是把问题考虑简单了，考虑到只需要两次嵌套循环来回归此次计算，具体代码实现时还是发现需要3次循环。是否有简单的方法？
+问题3:小错误，字符index有偏差。

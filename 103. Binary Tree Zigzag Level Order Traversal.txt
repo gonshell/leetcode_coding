@@ -1,0 +1,70 @@
+103. Binary Tree Zigzag Level Order Traversal
+
+Given a binary tree, return the zigzag level order traversal of its nodes' values. (ie, from left to right, then right to left for the next level and alternate between).
+
+For example:
+Given binary tree [3,9,20,null,null,15,7],
+    3
+   / \
+  9  20
+    /  \
+   15   7
+return its zigzag level order traversal as:
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        if (root == NULL)
+            return res;
+        
+        list<TreeNode*> lr;
+        list<TreeNode*> lw;
+        bool left = true;
+        
+        lr.push_front(root);
+        do {
+            TreeNode *item;
+            vector<int> le;
+            while (lr.size() > 0) {
+                item = lr.front();
+                if (left) {
+                    if (item->left) 
+                        lw.push_front(item->left);
+                    if (item->right)
+                        lw.push_front(item->right);
+                } else {
+                    if (item->right)
+                        lw.push_front(item->right);
+                    if (item->left) 
+                        lw.push_front(item->left);
+                }
+                le.push_back(item->val);
+                lr.pop_front();
+            }
+            
+            res.push_back(le);
+            list<TreeNode*> lt = lr;
+            lr = lw;
+            lw.clear();
+            left = !left;
+        } while(lr.size() > 0);
+        
+        return res;
+    }
+};

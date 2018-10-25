@@ -1,0 +1,241 @@
+99. Recover Binary Search Tree
+
+Two elements of a binary search tree (BST) are swapped by mistake.
+
+Recover the tree without changing its structure.
+
+Example 1:
+
+Input: [1,3,null,null,2]
+
+   1
+  /
+ 3
+  \
+   2
+
+Output: [3,1,null,null,2]
+
+   3
+  /
+ 1
+  \
+   2
+Example 2:
+
+Input: [3,1,4,null,null,2]
+
+  3
+ / \
+1   4
+   /
+  2
+
+Output: [2,1,4,null,null,3]
+
+  2
+ / \
+1   4
+   /
+  3
+
+input:
+[146,71,-13,55,null,231,399,321,null,null,null,null,null,-33]
+[3,null,2,null,1]
+
+Follow up:
+
+A solution using O(n) space is pretty straight forward.
+Could you devise a constant space solution?
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool recoverSubTree(TreeNode *sub, TreeNode *min, TreeNode *max) {
+        bool ret = false;
+        do {
+            if (sub) {
+                if (sub->left) {
+                    if (sub->right && sub->left->val > sub->right->val) {
+                        int tmp = sub->left->val;
+                        sub->left->val = sub->right->val;
+                        sub->right->val = tmp;
+                        ret = true;
+                    } else if (sub->left->val > sub->val) {
+                        int tmp = sub->left->val;
+                        sub->left->val = sub->val;
+                        sub->val = tmp;
+                        ret = true;
+                    } else if (min->val > sub->left->val) {
+                        int tmp = sub->left->val;
+                        sub->left->val = min->val;
+                        min->val = tmp;
+                        ret = true;
+                    } else {
+                        ret = recoverSubTree(sub->left, min, sub);
+                    }
+                }
+                if (ret)
+                    break;
+
+                if (sub->right) {
+                    if (sub->right->val < sub->val) {
+                        int tmp = sub->right->val;
+                        sub->right->val = sub->val;
+                        sub->val = tmp;
+                        ret = true;
+                    } else if (max->val < sub->right->val) {
+                        int tmp = sub->right->val;
+                        sub->right->val = max->val;
+                        max->val = tmp;
+                        ret = true;
+                    } else {
+                        ret = recoverSubTree(sub->right, sub, max);
+                    }
+                 }            
+            }
+        } while (false);
+        return ret;
+    }
+    
+    void recoverTree(TreeNode* root) {
+        TreeNode *min = new TreeNode(INT_MIN);
+        TreeNode *max = new TreeNode(INT_MAX);
+        
+        if (root) {
+            bool fix = false;
+            do {
+                if (root->left) {
+                    if (root->right && root->left->val > root->right->val) {
+                        int tmp = root->left->val;
+                        root->left->val = root->right->val;
+                        root->right->val = tmp;
+                        fix = true;
+                    } else if (root->left->val > root->val) {
+                        int tmp = root->left->val;
+                        root->left->val = root->val;
+                        root->val = tmp;
+                        fix = true;
+                    } else {
+                        fix = recoverSubTree(root->left, min, root);
+                    }
+                }
+                if (fix)
+                    break;
+                
+                if (root->right) {
+                    if (root->right->val < root->val) {
+                        int tmp = root->right->val;
+                        root->right->val = root->val;
+                        root->val = tmp;
+                        fix = true;
+                    } else {
+                        fix = recoverSubTree(root->right, root, max);
+                    }
+                }
+            } while (false);
+        }
+        
+        if (min)
+            delete min;
+        if (max)
+            delete max;
+    }
+};
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+    TreeNode* left = NULL;
+    TreeNode* right = NULL;
+    
+public:
+    void swapNode(TreeNode* x, TreeNode* y) {
+        if (!x || !y)
+            return;
+            
+        int t = x->val;
+        x->val = y->val;
+        y->val = t;
+    }
+    
+    void recSubTree(TreeNode* parent, TreeNode* sub, TreeNode** min, TreeNode** max) {
+        if (!sub)
+            return;
+        
+        TreeNode* lmin=NULL, *lmax=NULL;
+        TreeNode* rmin=NULL, *rmax=NULL;
+        
+        if (sub->left) {
+            recSubTree(sub, sub->left, &lmin, &lmax);
+        }
+        
+        if (sub->right) {
+            recSubTree(sub, sub->right, &rmin, &rmax);
+        }
+        
+        if (!parent || (parent->left == sub && sub->val < parent->val) || (parent->right==sub && sub->val>parent->val)) {
+            if (lmax && rmin && lmax->val > rmin->val) {
+                left = lmax;
+                right = rmin;
+                // swapNode(lmax, rmin);
+            } else if (lmax && rmax && lmax->val > rmax->val) {
+                left = lmax;
+                right = rmax;
+                // swapNode(lmax, rmax);
+            } else if (lmax && lmax->val > sub->val) {
+                left = lmax;
+                right = sub;
+                // swapNode(lmax, sub);
+            } else if (rmin && rmin->val < sub->val) {
+                left = rmin;
+                right = sub;
+                // swapNode(rmin, sub);
+            }
+        }
+        
+        *min = sub;
+        if (lmin && lmin->val < (*min)->val)
+            *min = lmin;
+        if (lmax && lmax->val < (*min)->val)
+            *min=lmax;
+        if (rmin && rmin->val < (*min)->val)
+            *min = rmin;
+        if (rmax && rmax->val < (*min)->val) 
+            *min = rmax;
+        
+        *max = sub;
+        if (lmax && lmax->val > (*max)->val)
+            *max=lmax;
+        if (lmin && lmin->val > (*max)->val)
+            *max = lmin;
+        if (rmax && rmax->val > (*max)->val) 
+            *max = rmax;
+        if (rmin && rmin->val > (*max)->val)
+            *max = rmin;
+    }
+
+    void recoverTree(TreeNode* root) {
+        TreeNode *min = NULL, *max = NULL;
+        recSubTree(NULL, root, &min, &max);
+        
+        if (left && right) {
+            swapNode(left, right);
+        }
+    }
+};
